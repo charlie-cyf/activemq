@@ -44,7 +44,7 @@ jobs:
         with:
           java-version: 1.8
       - name: sed pom.xml
-        run: sed '/^  <\/modules>/i \    <module>activemq-unit-tests<\/module>\n    <module>activemq-karaf-itest<\/module> \n    <module>activemq-itests-spring31<\/module>' pom.xml
+        run: sed -i '/^  <\/modules>/i \    <module>activemq-unit-tests<\/module>\n    <module>activemq-karaf-itest<\/module> \n    <module>activemq-itests-spring31<\/module>' pom.xml
       - name: Build with Maven
         run: mvn -U -B -e clean install -DskipTests
 
