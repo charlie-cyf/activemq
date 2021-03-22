@@ -1,0 +1,47 @@
+# This is a basic workflow that is manually triggered
+
+name: Manual workflow
+
+# Controls when the action will run. Workflow runs when manually triggered using the UI
+# or API.
+on:
+  workflow_dispatch:
+    # Inputs the workflow accepts.
+    inputs:
+      comments:
+        # Friendly description to be shown in the UI instead of 'name'
+        description: 'Comments:'
+        # Default value if no value is explicitly provided
+        default: 'manual triggered full test run'
+        # Input has to be provided for the workflow to run
+        required: false
+  schedule:
+    - cron: '0 */6 * * *'
+
+    # A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  setup_build_test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          ref: master
+          persist-credentials: false
+      - name: repo sync
+        uses: repo-sync/github-sync@v2
+        with:
+          source_repo: "https://github.com/apache/activemq.git"
+          source_branch: "master"
+          destination_branch: "master"
+          github_token: ${{ secrets.PAT }}
+      - name: Set up JDK 1.8
+        uses: actions/setup-java@v1
+        with:
+          java-version: 1.8
+      - name: sed pom.xml
+        run: sed '/^  <\/modules>/i \    <module>activemq-unit-tests<\/module>\n    <module>activemq-karaf-itest<\/module> \n    <module>activemq-itests-spring31<\/module>' pom.xml
+      - name: Build with Maven
+        run: mvn -U -B -e clean install -DskipTests
+
+      - name: full test run
+        run: mvn -B -e test
