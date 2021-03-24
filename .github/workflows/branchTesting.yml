@@ -36,5 +36,7 @@ jobs:
       - name: Build with Maven
         run: mvn -U -B -e clean install -DskipTests
 
-      - name: full test run
-        run: mvn -B -e test
+      - name: unit test run
+        run: |
+          cd activemq-unit-tests
+          mvn -B -e test
